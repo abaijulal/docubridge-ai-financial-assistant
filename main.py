@@ -1,4 +1,4 @@
-from flask import Flask, render_temlate, request
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
@@ -9,13 +9,13 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload():
-    file = request.files.get('excel file')
-    question = request.form.get('user_question')
+    file = request.files.get('file')
+    question = request.form.get('question')
 
-    print(f"Received file: {file.filename})
+    print(f"Received file: {file.filename}")
     print(f"User question: {question}")
 
-    return f"File received: {file.filename} and question: "{question}""
+    return f"File received: {file.filename} and question: {question}"
 
     
         
