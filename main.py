@@ -12,10 +12,10 @@ def upload():
     file = request.files.get('file')
     question = request.form.get('question')
 
-    print(f"Received file: {file.filename}")
+    print(f"Received file: {file}")
     print(f"User question: {question}")
 
-    return f"File received: {file.filename} and question: {question}"
+    return f"File received: {file} and question: {question}"
 
     
         
