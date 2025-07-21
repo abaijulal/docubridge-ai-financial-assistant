@@ -1,5 +1,3 @@
-pip install openai
-
 import openai
 import os
 import requests
@@ -10,3 +8,4 @@ response = requests.get(my_secret)
 
 print(response.text)
 
+python hello_gpt.py
