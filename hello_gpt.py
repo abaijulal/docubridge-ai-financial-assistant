@@ -4,7 +4,7 @@ import os
 my_secret = os.environ['Key1']
 gemini_api_key = my_secret 
 
-client = GoogleAI(api_key=my_secret)
+client = OpenAI(api_key=my_secret)
 
 response = client.chat.completions.create(
   model="gpt-3.5-turbo",
