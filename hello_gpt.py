@@ -1,14 +1,14 @@
 
-import openai
+from openai import OpenAI
 import os
 
 my_secret = os.environ['FinAPI']
-openai.api_key = my_secret
+client = OpenAI(api_key=my_secret)
 
-response = openai.ChatCompletion.create(
+response = client.chat.completions.create(
   model="gpt-3.5-turbo",
   messages=[{"role":"user","content":"Sales were 100 in Jan and 150 in Feb. What is the percent increase?"}],
   temperature = 0,
 )
 
-print(response['choices'][0]['message']['content'])
+print(response.choices[0].message.content)
