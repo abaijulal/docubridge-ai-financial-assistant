@@ -1,24 +1,7 @@
-
-<old_str>
-import openai
-import os
-
-my_secret = os.environ['Finance']
-openai.api_key = my_secret
-
-response = openai.ChatCompletion.create(
-  model="gpt-3.5-turbo",
-  messages=[{"role":"user","content":"Sales were 100 in Jan and 150 in Feb. What is the percent increase?"}],
-  temperature = 0,
-)
-
-print(response['choices'][0]['message']['content'])
-</old_str>
-<new_str>
 from openai import OpenAI
 import os
 
-my_secret = os.environ['FinAPI']
+my_secret = os.environ['Finance']
 client = OpenAI(api_key=my_secret)
 
 response = client.chat.completions.create(
@@ -28,4 +11,3 @@ response = client.chat.completions.create(
 )
 
 print(response.choices[0].message.content)
-</new_str>
