@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Excel Q&A</title>
+    <script>
+        function sendFollowup() {
+            const question = document.getElementById("followup_input").value;
+            fetch('/followup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'followup_question=' + encodeURIComponent(question)
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("followup_answer").innerHTML = "<strong>Answer:</strong><br>" + data.answer;
+            });
+        }
+    </script>
+</head>
+<body>
+    <h2>✅ File: {{ filename }}</h2>
+
+    <h3>Preview:</h3>
+    {{ preview | safe }}
+
+    <h3>Answer to your question:</h3>
+    <p>{{ answer }}</p>
+
+    <hr>
+
+    <h3>Ask a follow-up question:</h3>
+    <input type="text" id="followup_input" placeholder="Enter your follow-up question">
+    <button onclick="sendFollowup()">Ask</button>
+
+    <div id="followup_answer" style="margin-top: 20px;"></div>
+</body>
+</html>

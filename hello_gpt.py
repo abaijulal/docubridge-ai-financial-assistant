@@ -1,15 +1,19 @@
-from openai import OpenAI
+import google.generativeai as genai
 import os
 
-my_secret = os.environ['Key1']
-gemini_api_key = my_secret 
+try:
+    my_secret = os.environ['Key1']
+    genai.configure(api_key=my_secret)
+except KeyError:
+    print("Error: The environment variable 'Key1' is not set.")
+    exit()
 
-client = OpenAI(api_key=my_secret)
+model = genai.GenerativeModel('gemini-1.5-flash')
 
-response = client.chat.completions.create(
-  model="gpt-3.5-turbo",
-  messages=[{"role":"user","content":"Sales were 100 in Jan and 150 in Feb. What is the percent increase?"}],
-  temperature = 0,
-)
-
-print(response.choices[0].message.content)
+# Send a prompt
+try:
+    response = model.generate_content("Sales were 100 in Jan and 150 in Feb. What is the percent increase?")
+    # Print the response's text content
+    print(response.text)
+except Exception as e:
+    print(f"An error occurred while generating content: {e}")
