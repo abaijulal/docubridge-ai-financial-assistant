@@ -1,20 +1,173 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Upload Excel File</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Financial Model</title>
+    <style>
+        /* Background pattern */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e0f2ff;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.3) 10px, transparent 11px),
+                radial-gradient(circle at 80% 90%, rgba(255, 255, 255, 0.3) 10px, transparent 11px);
+            background-size: 60px 60px;
+            color: #1e3a8a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 2rem 1rem;
+        }
+
+        /* Container to center and limit width */
+        .container {
+            background: white;
+            padding: 2rem 3rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            max-width: 480px;
+            width: 100%;
+        }
+
+        h1 {
+            margin-top: 0;
+            font-weight: 700;
+            font-size: 2rem;
+            text-align: center;
+            color: #1e40af;
+        }
+
+        h3 {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 1.2rem;
+            line-height: 1.4;
+            color: #374151;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.3rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #1e40af;
+        }
+
+        input[type="file"],
+        input[type="text"] {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            border: 2px solid #93c5fd;
+            font-size: 1rem;
+            margin-bottom: 1.2rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="file"]:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
+        }
+
+        button {
+            background-color: #2563eb;
+            color: white;
+            padding: 0.7rem 1.3rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover,
+        button:focus {
+            background-color: #1d4ed8;
+            outline: none;
+        }
+
+        /* Loading message style */
+        #loading-message {
+            display: none;
+            color: #2563eb;
+            font-weight: 700;
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.85);
+            border: 2px solid #2563eb;
+            border-radius: 8px;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+            backdrop-filter: saturate(180%) blur(5px);
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 500px) {
+            .container {
+                padding: 1.5rem 1.8rem;
+                max-width: 100%;
+            }
+            h1 {
+                font-size: 1.6rem;
+            }
+            button {
+                font-size: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>AI Financial Modeling Assistant</h1>
-    <p>Upload an Excel file and ask your financial modeling question.</p>
+    <div class="container" role="main" aria-label="AI Financial Model Upload Form">
+        <h1>AI Financial Modeling Assistant</h1>
+        <h3>
+            Upload an Excel financial model and ask a question (e.g., “What is the total expense for 2021?”).<br />
+        </h3>
 
-    <form action="/upload" method="POST" enctype="multipart/form-data">   
-        <label>Excel File:</label><br>
-        <input type="file" name="excel_file" accept=".xls,.xlsx" required><br><br>
+        <form id="upload-form" action="/upload" method="POST" enctype="multipart/form-data" aria-describedby="instructions">
+            <label for="excel_file">Choose Excel file (.xls/.xlsx)</label>
+            <input type="file" id="excel_file" name="excel_file" accept=".xls,.xlsx" required aria-required="true" />
 
-        <label>Question:</label><br>
-        <input type="text" name="user_question" required><br><br>
+            <label for="user_question">Your question</label>
+            <input
+                type="text"
+                id="user_question"
+                name="user_question"
+                placeholder="Enter your question"
+                required
+                aria-required="true"
+                aria-describedby="question-help"
+            />
+            <small id="question-help" style="color:#6b7280; font-size:0.85rem;">
+                Example: What is the total revenue for 2022?
+            </small>
 
-        <button type="submit">Submit</button>
-    </form>
+            <button type="submit">Submit</button>
+        </form>
+
+        <div id="loading-message" role="status" aria-live="polite" aria-atomic="true">
+            Analyzing your data, please wait...
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('upload-form');
+            const loadingMsg = document.getElementById('loading-message');
+
+            form.addEventListener('submit', function () {
+                loadingMsg.style.display = 'block';
+            });
+        });
+    </script>
 </body>
 </html>

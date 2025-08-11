@@ -1,37 +1,322 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Excel Q&A</title>
-    <script>
-        function sendFollowup() {
-            const question = document.getElementById("followup_input").value;
-            fetch('/followup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: 'followup_question=' + encodeURIComponent(question)
-            })
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById("followup_answer").innerHTML = "<strong>Answer:</strong><br>" + data.answer;
-            });
-        }
-    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Financial Model - Chat</title>
+  <style>
+    /* Background and pattern same as index.html */
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #e0f2ff;
+      background-image:
+          radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.3) 10px, transparent 11px),
+          radial-gradient(circle at 80% 90%, rgba(255, 255, 255, 0.3) 10px, transparent 11px);
+      background-size: 60px 60px;
+      color: #1e3a8a;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      background: white;
+      padding: 2rem 3rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      max-width: 800px;
+      width: 100%;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    header h1 {
+      font-weight: 700;
+      font-size: 1.8rem;
+      margin: 0;
+      color: #1e40af;
+    }
+
+    /* Logo styling */
+    header img {
+      max-height: 50px;
+      border-radius: 6px;
+    }
+
+    /* Sheet selector styling */
+    form#sheet-form {
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #1e40af;
+    }
+
+    select {
+      padding: 0.4rem 0.6rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 2px solid #93c5fd;
+      cursor: pointer;
+      min-width: 150px;
+      transition: border-color 0.3s ease;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
+    }
+
+    /* Preview table styling */
+    .preview-table {
+      margin-bottom: 1rem;
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 2px solid #93c5fd;
+    }
+
+    table.table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      color: #374151;
+    }
+
+    table.table th,
+    table.table td {
+      border: 1px solid #cbd5e1;
+      padding: 8px 10px;
+      text-align: left;
+    }
+
+    table.table th {
+      background-color: #bfdbfe;
+      color: #1e40af;
+    }
+
+    /* Current Q&A display */
+    .current-qa {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background-color: #bfdbfe;
+      border-radius: 8px;
+      border: 2px solid #93c5fd;
+      color: #1e40af;
+      font-weight: 700;
+      white-space: pre-wrap;
+    }
+
+    /* Q&A History dropdown styling */
+    #toggle-history {
+      background-color:#2563eb; 
+      color:white; 
+      border:none; 
+      padding:0.7rem 1.3rem; 
+      border-radius:10px; 
+      font-weight:700; 
+      cursor:pointer; 
+      margin-top: 1rem;
+      margin-bottom:1rem;
+      transition: background-color 0.3s ease;
+      width: 100%;
+      text-align: left;
+    }
+
+    #toggle-history:hover,
+    #toggle-history:focus {
+      background-color: #1d4ed8;
+      outline: none;
+    }
+
+    .qa-history {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 2px solid #93c5fd;
+      border-radius: 8px;
+      padding: 1rem;
+      background: #f0f9ff;
+      margin-bottom: 2rem;
+    }
+
+    .qa-entry {
+      margin-bottom: 1.5rem;
+    }
+
+    .qa-entry:last-child {
+      margin-bottom: 0;
+    }
+
+    .question {
+      font-weight: 700;
+      color: #1e40af;
+      margin-bottom: 0.3rem;
+    }
+
+    .answer {
+      white-space: pre-wrap;
+      background: white;
+      border: 1px solid #93c5fd;
+      padding: 0.8rem;
+      border-radius: 6px;
+      color: #111827;
+    }
+
+    /* Follow-up form */
+    form#followup-form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 0; /* we'll put Q&A toggle after */
+    }
+
+    form#followup-form label {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #1e40af;
+    }
+
+    form#followup-form input[type="text"] {
+      padding: 0.5rem 0.75rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 2px solid #93c5fd;
+      transition: border-color 0.3s ease;
+    }
+
+    form#followup-form input[type="text"]:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
+    }
+
+    form#followup-form button {
+      margin-top: 0.5rem;
+      background-color: #2563eb;
+      color: white;
+      padding: 0.7rem 1.3rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    form#followup-form button:hover,
+    form#followup-form button:focus {
+      background-color: #1d4ed8;
+      outline: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      .container {
+        padding: 1.5rem 1.8rem;
+        max-width: 100%;
+      }
+
+      header h1 {
+        font-size: 1.4rem;
+      }
+
+      #toggle-history {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h2>✅ File: {{ filename }}</h2>
+  <div class="container" role="main" aria-label="AI Financial Model Chat Interface">
 
-    <h3>Preview:</h3>
-    {{ preview | safe }}
+    <header>
+      <h1>AI Financial Modeling Assistant</h1>
+      <img src="https://tse2.mm.bing.net/th/id/OIP.-uhojatoKwC065--2sYWvQAAAA?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="AI Financial Model Logo" />
+    </header>
 
-    <h3>Answer to your question:</h3>
-    <p>{{ answer }}</p>
+    <!-- Sheet selection form -->
+    <form id="sheet-form" action="/change_sheet" method="POST" aria-label="Select Excel sheet">
+      <label for="sheet_name">Select Sheet:</label>
+      <select id="sheet_name" name="sheet_name" aria-required="true" required>
+        {% for sheet in sheet_names %}
+          <option value="{{sheet}}" {% if sheet == selected_sheet %}selected{% endif %}>{{sheet}}</option>
+        {% endfor %}
+      </select>
+      <button type="submit">Change Sheet</button>
+    </form>
 
-    <hr>
+    <!-- Preview of the selected sheet -->
+    <div class="preview-table" aria-label="Preview of Excel sheet data">
+      {{ preview_html | safe }}
+    </div>
 
-    <h3>Ask a follow-up question:</h3>
-    <input type="text" id="followup_input" placeholder="Enter your follow-up question">
-    <button onclick="sendFollowup()">Ask</button>
+    <!-- Current Q&A (latest question and answer) -->
+    {% if latest_qa %}
+      <div class="current-qa" aria-live="polite" aria-atomic="true">
+        <div><strong>Current Question:</strong> {{ latest_qa.question }}</div>
+        <div><strong>Answer:</strong> {{ latest_qa.answer | safe }}</div>
+      </div>
+    {% endif %}
 
-    <div id="followup_answer" style="margin-top: 20px;"></div>
+    <!-- Follow-up question form -->
+    <form id="followup-form" action="/followup" method="POST" aria-label="Ask follow-up question">
+      <label for="followup_question">Ask a follow-up question:</label>
+      <input
+        type="text"
+        id="followup_question"
+        name="followup_question"
+        placeholder="Enter follow-up question"
+        required
+        aria-required="true"
+      />
+      <button type="submit">Submit</button>
+    </form>
+
+    <!-- Button to toggle Q&A History -->
+    <button id="toggle-history" aria-expanded="false" aria-controls="qa-history-list">
+      Show Q&A History ▼
+    </button>
+
+    <!-- Q&A History Panel (collapsed by default) -->
+    <section id="qa-history-list" class="qa-history" aria-live="polite" aria-atomic="false" aria-relevant="additions" hidden>
+      {% for qa in qa_history %}
+        <div class="qa-entry">
+          <div class="question" tabindex="0">Q: {{ qa.question }}</div>
+          <div class="answer" tabindex="0">A: {{ qa.answer | safe }}</div>
+        </div>
+      {% endfor %}
+    </section>
+  </div>
+
+  <script>
+    const toggleBtn = document.getElementById('toggle-history');
+    const qaHistory = document.getElementById('qa-history-list');
+
+    toggleBtn.addEventListener('click', () => {
+      const isHidden = qaHistory.hasAttribute('hidden');
+      if (isHidden) {
+        qaHistory.removeAttribute('hidden');
+        toggleBtn.setAttribute('aria-expanded', 'true');
+        toggleBtn.textContent = 'Hide Q&A History ▲';
+      } else {
+        qaHistory.setAttribute('hidden', '');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        toggleBtn.textContent = 'Show Q&A History ▼';
+      }
+    });
+  </script>
 </body>
 </html>
